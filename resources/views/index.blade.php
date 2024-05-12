@@ -15,12 +15,13 @@
             <div class="hero-area">
                 <div class="hero-area-left">
                     <h1>Envie agora as suas melhores fotografias.</h1>
-                    <form>
+                    <form action="{{route('upload')}}" method="POST" enctype="multipart/form-data">
+                        @csrf
                         <div class="input-file-container">
-                            <input type="file" />
+                            <input type="file" name="image" id="image"/>
                             <img src="./assets/icons/Frame.png" alt="Botão de upload" />
                         </div>
-                        <input type="text" placeholder="Escreva um título para a foto" />
+                        <input type="text" id="title" name="title" placeholder="Escreva um título para a foto" />
                         <input type="submit" value="Enviar" />
                     </form>
                 </div>
@@ -31,7 +32,13 @@
         </div>     
     </header>
     <main class="gallery-container wrapper">
-        <x-image url="./assets/images/img-1.png" title="Doguinho 2"/>
+        @foreach ($images as $image)
+            <x-image 
+                :id="$image->id" 
+                :url="'storage/'.$image->url" 
+                :title="$image->title"
+            />
+        @endforeach
     </main>
 
     <footer class="wrapper">
