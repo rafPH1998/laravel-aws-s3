@@ -24,6 +24,13 @@
                         <input type="text" id="title" name="title" placeholder="Escreva um título para a foto" />
                         <input type="submit" value="Enviar" />
                     </form>
+                    @if ($errors->any())
+                        <ul>
+                            @foreach ($errors->all() as $error)
+                                <li>{{$error}}</li>
+                            @endforeach
+                        </ul>
+                    @endif
                 </div>
                 <div class="hero-area-right">
                     <img src="./assets/images/img-banner.png" alt="Banner de exemplo" />

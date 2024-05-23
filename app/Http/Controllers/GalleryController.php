@@ -2,42 +2,44 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\FileUploadRequest;
 use App\Models\Image;
+use App\Http\Services\ImageService;
 use Exception;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class GalleryController extends Controller
 {
+    public function __construct(protected ImageService $imageService)
+    { }
+
     public function index(): View
     {
         return view('index', ['images' => Image::all()]);   
     }
 
-    public function upload(Request $request): RedirectResponse
+    public function upload(FileUploadRequest $request): RedirectResponse
     {
-        if ($request->hasFile('image')) {
-            try {
-                $image = $request->file('image');
-                $titleImage = $request->title;
-    
-                $name = $image->hashName();
-    
-                $url = $image->store('uploads', 'public', $name);
-                
-                Image::query()->create([
-                    'title' => $titleImage,
-                    'url'   => $url
-                ]);
-            } catch (Exception $error) {
-                Storage::disk('public')->delete($url);
-            }
-
+        $request->validated();
+        $image = $request->file('image');
+        $titleImage = $request->title;
+        
+        try {
+            $url = $this->imageService->storeImageInDisk($image);
+            
+            Image::query()->create([
+                'title' => $titleImage,
+                'url'   => $url
+            ]);
+        } catch (Exception $error) {
+            $this->imageService->deleteImageFromDisk($url);
         }
+
         return back();
     }
+
 
     public function delete(int $idImage): RedirectResponse
     {
